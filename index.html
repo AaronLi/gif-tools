@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>DMFG GIF maker</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.js"
+        integrity="sha512-nNOFtIS+H0lwgdUDaPn/g1ssw3uN9AkEM7zy2wLaTQeLQNeNiitUcLpEpDIh3Z4T22MdeTNru/SQbNM4ig2rng=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.worker.js"
+        integrity="sha512-3piO8GKVGn3D+eEWnTquDnlxM00ESMZpYNAnjmOMswHrGihZvdlsRjSW1bHLqahzIoyL9YWlLWVYRV4J8AHwtg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <style>
+        body {
+            background-color: black;
+            color: aqua;
+            font-family: monospace;
+            font-size: 3vw;
+        }
+    </style>
+</head>
+
+<body>
+    <form
+        style="display: flex; flex-direction: column; border: thick inset aqua; border-radius: 10px; background-color: #222; padding: 5px;">
+        <div style="font-size: larger; display: flex; justify-content: center;">Settings</div>
+        <div
+            style="display: flex; flex-direction: row; align-items: stretch; justify-content: space-between; flex-wrap: wrap;">
+            <div style="display: flex; flex-direction: row; justify-content: flex-start;">
+                <div style="background-color: aqua; width: 3px; margin: 5px;"></div>
+                <div style="display: flex; flex-direction: column;">
+                    <div style="padding-bottom: 5px;">Input Images</div>
+                    <div style="display: flex; flex-direction: column; justify-content: space-evenly; height: 100%;">
+                        <div style="display: flex; flex-direction: column; justify-content: space-between;">
+                            <div style="font-size: 2vw;">Start Image</div>
+                            <input type="file" accept="image/*" id="startImage" style="font-size: 2vw;">
+                        </div>
+
+                        <div style="display: flex; flex-direction: column; justify-content: space-between;">
+                            <div style="font-size: 2vw;">End Image</div>
+                            <input type="file" accept="image/*" id="endImage" style="font-size: 2vw;"">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div style=" display: flex; flex-direction: row; justify-content: flex-start;">
+                            <div style="background-color: aqua; width: 3px; margin: 5px; display: block;">
+
+                            </div>
+
+                            <div style="display: flex; flex-direction: column;">
+                                <div style="padding-bottom: 5px;">Animation Settings</div>
+                                <div
+                                    style="display: flex; flex-direction: column; justify-content: space-between; height: 100%;">
+                                    <div
+                                        style="width: 100%; display: flex; justify-content: flex-start; flex-direction: column;">
+                                        <label for="animationDuration" style="font-size: 2vw;">Duration</label>
+                                        <div style="display: flex; justify-content: space-between;">
+                                            <input type="range" min="0.1" max="20" value="3" step="0.1"
+                                                id="transitionDuration" name="animationDuration" style="flex: 3;">
+                                            <div style="text-align: center; flex: 1;" id="durationDisplay">3</div>
+                                        </div>
+                                    </div>
+                                    <div
+                                        style="width: 100%; display: flex; justify-content: space-between; flex-direction: column;">
+                                        <label for="framerate" style="font-size: 2vw;">Framerate</label>
+                                        <div
+                                            style="flex-direction: row; display: flex; align-items: stretch; justify-content: space-between;">
+                                            <input type="range" min="1" max="30" value="10" step="1" id="framerate"
+                                                style="flex: 3;" name="framerate">
+                                            <div style="text-align: center; flex: 1;" id="framerateDisplay">3</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; flex-direction: row; justify-content: flex-start;">
+                            <div style="background-color: aqua; width: 3px; margin: 5px;">
+
+                            </div>
+
+                            <div style="display: flex; flex-direction: column;">
+                                <div style="padding-bottom: 5px;">GIF Crop</div>
+                                <div>
+                                    <input type="radio" id="cropToStartOption" name="crop" value="CropToStart"
+                                        checked="checked">
+                                    <label for="cropToStartOption" style="font-size: 2vw;">Crop to Start Image
+                                        Size</label>
+                                </div>
+                                <div>
+                                    <input type="radio" id="cropToEndOption" name="crop" value="CropToEnd">
+                                    <label for="cropToEndOption" style="font-size: 2vw;">Crop to End Image Size</label>
+                                </div>
+
+                                <div>
+                                    <input type="radio" id="padToStartOption" name="crop" value="PadToStart">
+                                    <label for="padToStartOption" style="font-size: 2vw;">Pad to Start Image
+                                        Size</label>
+                                </div>
+
+                                <div>
+                                    <input type="radio" id="padToEndOption" name="crop" value="PadToEnd">
+                                    <label for="padToEndOption" style="font-size: 2vw;">Pad to End Image Size</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+    </form>
+
+    <div style="height: 1vw;"></div>
+
+    <div
+        style="display: flex; flex-direction: column; border: thick inset aqua; border-radius: 10px; background-color: #222; padding: 5px;">
+        <div style="display: flex; flex-direction: column;">
+            <div style="font-size: larger; display: flex; justify-content: center;">Preview</div>
+            <div style="display: flex; justify-content: center;">
+                <img id="preview"></img>
+            </div>
+        </div>
+    </div>
+
+    <script src="magic.js" type="text/javascript"></script>
+</body>
+
+</html>
