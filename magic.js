@@ -153,7 +153,7 @@ function doRender() {
     for(frame = 0; frame<=totalFrames; frame++){
         gif.addFrame(interpolateImages(startImageData.data, endImageData.data, frame/totalFrames, canvas.width), {copy: true, delay: 1000/generationSettings.framerate});
     }
-    gif.addFrame(endImageData, {copy: true, delay: 1500});
+    gif.addFrame(endImageData, {copy: true, delay: 2000});
 
     gif.on('finished', function(blob) {
         const gifUrl = URL.createObjectURL(blob);
