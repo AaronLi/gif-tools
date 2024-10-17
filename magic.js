@@ -98,44 +98,45 @@ function doRender() {
         return;
     }
 
+    const useStartImageForSize = generationSettings.crop === CropOption.CropToStart || generationSettings.crop === CropOption.PadToStart;
+
+    const outputSize = calculateOutputSize(generationSettings.startImage, generationSettings.endImage, useStartImageForSize);
+
+    canvas.width = outputSize.width;
+    canvas.height = outputSize.height;
+
     var startImageData;
     var endImageData;
 
     switch (generationSettings.crop) {
         case CropOption.CropToStart:
         case CropOption.PadToStart:
-            canvas.width = generationSettings.startImage.width;
-            canvas.height = generationSettings.startImage.height;
-
-            ctx.drawImage(generationSettings.startImage, 0, 0);
+            ctx.drawImage(generationSettings.startImage, 0, 0, canvas.width, canvas.height);
             startImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
-            const endImageScale = calculateScaledSize(generationSettings.startImage, generationSettings.endImage, generationSettings.crop === CropOption.CropToStart);
+            const endImageScale = calculateScaledSize(outputSize, generationSettings.endImage, generationSettings.crop === CropOption.CropToStart);
 
             ctx.fillStyle = "black";
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            const endImageDrawX = generationSettings.startImage.width / 2 - endImageScale.width / 2;
-            const endImageDrawY = generationSettings.startImage.height / 2 - endImageScale.height / 2;
+            const endImageDrawX = outputSize.width / 2 - endImageScale.width / 2;
+            const endImageDrawY = outputSize.height / 2 - endImageScale.height / 2;
 
             ctx.drawImage(generationSettings.endImage, endImageDrawX, endImageDrawY, endImageScale.width, endImageScale.height);
             endImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
             break;
         case CropOption.CropToEnd:
         case CropOption.PadToEnd:
-            canvas.width = generationSettings.endImage.width;
-            canvas.height = generationSettings.endImage.height;
-
-            ctx.drawImage(generationSettings.endImage, 0, 0);
+            ctx.drawImage(generationSettings.endImage, 0, 0, canvas.width, canvas.height);
             endImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
-            const startImageScale = calculateScaledSize(generationSettings.endImage, generationSettings.startImage, generationSettings.crop === CropOption.CropToEnd);
+            const startImageScale = calculateScaledSize(outputSize, generationSettings.startImage, generationSettings.crop === CropOption.CropToEnd);
 
             ctx.fillStyle = "black";
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            const startImageDrawX = generationSettings.endImage.width / 2 - startImageScale.width / 2;
-            const startImageDrawY = generationSettings.endImage.height / 2 - startImageScale.height / 2;
+            const startImageDrawX = outputSize.width / 2 - startImageScale.width / 2;
+            const startImageDrawY = outputSize.height / 2 - startImageScale.height / 2;
 
             ctx.drawImage(generationSettings.startImage, startImageDrawX, startImageDrawY, startImageScale.width, startImageScale.height);
             startImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
@@ -143,6 +144,8 @@ function doRender() {
     }
 
     const totalFrames = Math.ceil(generationSettings.duration * generationSettings.framerate);
+
+    URL.revokeObjectURL(previewImage.src);
     console.log("Rendering", totalFrames, "frames");
     gif = new GIF({
         workers: 4,
@@ -154,6 +157,7 @@ function doRender() {
         gif.addFrame(interpolateImages(startImageData.data, endImageData.data, frame/totalFrames, canvas.width), {delay: 1000/generationSettings.framerate});
     }
     gif.addFrame(endImageData, {delay: 2000});
+    gif.addFrame(endImageData, {delay: 1});
 
     gif.on('finished', function(blob) {
         const gifUrl = URL.createObjectURL(blob);
@@ -172,6 +176,38 @@ function interpolateImages(a, b, blend, width) {
     }
 
     return new ImageData(dataOut, width);
+}
+
+function calculateOutputSize(start, end, useStart) {
+    var targetWidth;
+    var targetHeight;
+
+    if(useStart){
+        targetWidth = start.width;
+        targetHeight = start.height;
+    } else {
+        targetWidth = end.width;
+        targetHeight = end.height;
+    }
+
+    const area = targetWidth * targetHeight;
+
+    if(area > 1_000_000) {
+        const aspectRatio = targetWidth / targetHeight;
+        if(aspectRatio > 1.0) {
+            return {
+                width: 1000,
+                height: Math.round(1000 * 1.0/aspectRatio)
+            }
+        }else {
+            return {
+                width: Math.round(1000 * aspectRatio),
+                height: 1000
+            }
+        }
+    }
+
+    return {width: targetWidth, height: targetHeight};
 }
 
 function calculateScaledSize(target, source, cropToTarget) {
