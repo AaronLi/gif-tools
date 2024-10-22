@@ -20,7 +20,7 @@ jobs:
       - name: stash the changes, change to release branch, and unstash changes
         run: |
           git stash
-          git checkout release
+          git checkout -b release
           git stash pop
 
       - name: auto commit the minified files
