@@ -8,6 +8,8 @@ jobs:
     steps:
       - name: check out the repository
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
 
       - name: auto minify the files
         uses: nizarmah/auto-minify@v3
